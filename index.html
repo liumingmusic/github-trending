@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <meta name="description" content="GitHub 热门开源项目，按分类排版展示，每三天更新一期">
+  <meta name="theme-color" content="#6366f1">
+  <title>GitHub Trending · 热门开源项目</title>
+  <style>
+    /* ===== 设计变量 ===== */
+    :root {
+      --primary: #6366f1;
+      --primary-dark: #4f46e5;
+      --primary-light: #818cf8;
+      --primary-bg: #eef2ff;
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --surface-2: #f1f5f9;
+      --text: #0f172a;
+      --text-2: #475569;
+      --text-muted: #94a3b8;
+      --border: #e2e8f0;
+      --border-hover: #cbd5e1;
+      --star: #fbbf24;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+      --shadow-md: 0 4px 16px rgba(0,0,0,.08), 0 2px 6px rgba(0,0,0,.04);
+      --radius: 14px;
+      --radius-sm: 10px;
+      --tr: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", "PingFang SC", "Noto Sans SC", "Microsoft YaHei", sans-serif;
+      --mono: "SF Mono", "Fira Code", "Cascadia Code", Consolas, monospace;
+    }
+    [data-theme="dark"] {
+      --bg: #0f172a;
+      --surface: #1e293b;
+      --surface-2: #334155;
+      --text: #f1f5f9;
+      --text-2: #cbd5e1;
+      --text-muted: #64748b;
+      --border: #334155;
+      --border-hover: #475569;
+      --primary-bg: rgba(99, 102, 241, 0.15);
+    }
+
+    /* ===== 重置 ===== */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      font-size: 15px;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    a { color: inherit; text-decoration: none; }
+    img { display: block; max-width: 100%; }
+    button { font-family: inherit; border: none; background: none; cursor: pointer; color: inherit; }
+    select { font-family: inherit; color: inherit; }
+
+    .container { max-width: 1280px; margin: 0 auto; padding: 0 24px; }
+
+    /* ===== Header ===== */
+    .site-header {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(248, 250, 252, 0.85);
+      backdrop-filter: saturate(180%) blur(16px);
+      -webkit-backdrop-filter: saturate(180%) blur(16px);
+      border-bottom: 1px solid var(--border);
+    }
+    [data-theme="dark"] .site-header { background: rgba(15, 23, 42, 0.85); }
+    .header-inner {
+      display: flex; align-items: center; justify-content: space-between;
+      height: 64px; gap: 16px;
+    }
+    .site-brand { display: flex; align-items: center; gap: 12px; flex-shrink: 0; }
+    .brand-logo {
+      width: 38px; height: 38px; border-radius: 11px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-weight: 800; font-size: 16px;
+      box-shadow: 0 2px 8px rgba(99, 102, 241, 0.35);
+    }
+    .brand-text { display: flex; flex-direction: column; }
+    .brand-title {
+      font-size: 17px; font-weight: 700; line-height: 1.2;
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .brand-sub { font-size: 11px; color: var(--text-muted); line-height: 1.2; }
+    .issue-nav { display: flex; align-items: center; gap: 8px; }
+    .issue-select {
+      appearance: none; -webkit-appearance: none;
+      padding: 9px 36px 9px 14px;
+      border: 1px solid var(--border); border-radius: var(--radius-sm);
+      background: var(--surface); font-size: 13px; font-weight: 500;
+      color: var(--text); cursor: pointer; transition: var(--tr);
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%2394a3b8' d='M6 8L2 4h8z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 12px center;
+    }
+    .issue-select:hover { border-color: var(--primary); }
+    .issue-select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-bg); }
+
+    /* ===== 主题切换按钮 ===== */
+    .theme-toggle {
+      display: flex; align-items: center; justify-content: center;
+      width: 36px; height: 36px; border-radius: var(--radius-sm);
+      border: 1px solid var(--border); background: var(--surface);
+      cursor: pointer; transition: var(--tr); color: var(--text-2); flex-shrink: 0;
+    }
+    .theme-toggle:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-bg); }
+    .theme-toggle .icon-sun { display: none; }
+    .theme-toggle .icon-moon { display: block; }
+    [data-theme="dark"] .theme-toggle .icon-sun { display: block; }
+    [data-theme="dark"] .theme-toggle .icon-moon { display: none; }
+
+    /* ===== Hero ===== */
+    .hero {
+      padding: 44px 0 28px;
+      display: flex; align-items: flex-end; justify-content: space-between; gap: 20px;
+    }
+    .hero-left h1 { font-size: 28px; font-weight: 800; letter-spacing: -0.02em; }
+    .hero-meta {
+      font-size: 13px; color: var(--text-2); margin-top: 8px;
+      display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+    }
+    .hero-meta .dot { width: 4px; height: 4px; border-radius: 50%; background: var(--text-muted); }
+    .hero-badge {
+      padding: 7px 16px; background: var(--primary-bg); color: var(--primary);
+      border-radius: 20px; font-size: 12px; font-weight: 600; white-space: nowrap;
+    }
+
+    /* ===== 分类导航 ===== */
+    .category-nav {
+      display: flex; gap: 8px; overflow-x: auto;
+      padding: 4px 0 20px; -webkit-overflow-scrolling: touch;
+      scrollbar-width: thin;
+    }
+    .category-nav::-webkit-scrollbar { height: 4px; }
+    .category-nav::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+    .cat-pill {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 8px 16px; border: 1px solid var(--border); border-radius: 20px;
+      background: var(--surface); font-size: 13px; font-weight: 500;
+      white-space: nowrap; cursor: pointer; transition: var(--tr); color: var(--text-2);
+    }
+    .cat-pill:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-bg); }
+    .cat-pill.active {
+      background: var(--primary); color: #fff; border-color: var(--primary);
+      box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3);
+    }
+    .cat-count {
+      font-size: 11px; padding: 1px 7px; background: rgba(0,0,0,0.06); border-radius: 10px;
+    }
+    .cat-pill.active .cat-count { background: rgba(255,255,255,0.25); }
+    [data-theme="dark"] .cat-count { background: rgba(255,255,255,0.08); }
+    [data-theme="dark"] .cat-pill.active .cat-count { background: rgba(255,255,255,0.2); }
+
+    /* ===== 分类区块 ===== */
+    .category-section { margin-bottom: 44px; animation: fadeUp 0.4s ease-out both; }
+    .cat-section-header {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 16px; padding-bottom: 10px; border-bottom: 2px solid var(--border);
+    }
+    .cat-icon { font-size: 24px; }
+    .cat-title { font-size: 18px; font-weight: 700; }
+    .cat-badge {
+      font-size: 12px; color: var(--text-muted); margin-left: auto;
+      padding: 2px 10px; background: var(--surface-2); border-radius: 10px;
+    }
+
+    /* ===== 仓库卡片 ===== */
+    .repos-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+      gap: 16px;
+    }
+    .repo-card {
+      background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+      padding: 18px; display: flex; flex-direction: column; gap: 12px;
+      transition: var(--tr); animation: fadeUp 0.4s ease-out both;
+      position: relative; overflow: hidden;
+    }
+    .repo-card::before {
+      content: ""; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: var(--card-accent, var(--primary));
+      transform: scaleX(0); transform-origin: left; transition: transform 0.3s ease;
+    }
+    .repo-card:hover {
+      border-color: var(--border-hover); box-shadow: var(--shadow-md); transform: translateY(-3px);
+    }
+    .repo-card:hover::before { transform: scaleX(1); }
+    .repo-card-head { display: flex; align-items: flex-start; gap: 12px; }
+    .repo-avatar {
+      width: 42px; height: 42px; border-radius: 10px; flex-shrink: 0;
+      background: var(--surface-2); object-fit: cover;
+    }
+    .repo-info { flex: 1; min-width: 0; }
+    .repo-owner { font-size: 12px; color: var(--text-muted); line-height: 1.3; }
+    .repo-name {
+      font-size: 15px; font-weight: 700; color: var(--primary);
+      line-height: 1.3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .repo-card:hover .repo-name { text-decoration: underline; }
+    .repo-desc {
+      font-size: 13px; color: var(--text-2);
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+      overflow: hidden; min-height: 42px;
+    }
+    .repo-topics { display: flex; flex-wrap: wrap; gap: 5px; }
+    .repo-topic {
+      font-size: 11px; padding: 2px 8px; background: var(--surface-2);
+      border: 1px solid var(--border); border-radius: 4px; color: var(--text-2); font-weight: 500;
+    }
+    .repo-card-foot {
+      display: flex; align-items: center; gap: 16px;
+      font-size: 12px; color: var(--text-muted);
+      margin-top: auto; padding-top: 10px; border-top: 1px solid var(--border);
+    }
+    .repo-foot-item { display: flex; align-items: center; gap: 5px; }
+    .lang-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+    .star-icon { color: var(--star); }
+
+    /* ===== 加载 & 错误 ===== */
+    .loading {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 80px 0; gap: 16px; color: var(--text-muted);
+    }
+    .loading-spinner {
+      width: 32px; height: 32px; border: 3px solid var(--border);
+      border-top-color: var(--primary); border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    .loading-text { font-size: 14px; }
+    .error-box {
+      text-align: center; padding: 60px 20px; color: var(--text-muted);
+    }
+    .error-box h3 { font-size: 16px; color: var(--text); margin-bottom: 8px; }
+
+    /* ===== Footer ===== */
+    .site-footer {
+      border-top: 1px solid var(--border); padding: 28px 0; margin-top: 40px;
+    }
+    .footer-inner {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 12px; flex-wrap: wrap;
+    }
+    .footer-text { font-size: 12px; color: var(--text-muted); }
+    .footer-link { font-size: 12px; color: var(--primary); font-weight: 500; }
+    .footer-link:hover { text-decoration: underline; }
+
+    /* ===== 回到顶部 ===== */
+    .scroll-top {
+      position: fixed; bottom: 24px; right: 24px;
+      width: 42px; height: 42px; border-radius: 12px;
+      background: var(--surface); border: 1px solid var(--border);
+      box-shadow: var(--shadow-md);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; opacity: 0; pointer-events: none;
+      transition: var(--tr); color: var(--text-2); z-index: 90;
+    }
+    .scroll-top.visible { opacity: 1; pointer-events: auto; }
+    .scroll-top:hover { border-color: var(--primary); color: var(--primary); }
+
+    /* ===== 动画 ===== */
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ===== 响应式 ===== */
+    @media (max-width: 768px) {
+      .container { padding: 0 16px; }
+      .header-inner { height: 56px; }
+      .brand-sub { display: none; }
+      .hero { padding: 28px 0 20px; flex-direction: column; align-items: flex-start; }
+      .hero-left h1 { font-size: 22px; }
+      .repos-grid { grid-template-columns: 1fr; }
+      .cat-pill { padding: 6px 12px; font-size: 12px; }
+      .scroll-top { bottom: 16px; right: 16px; }
+    }
+    @media (max-width: 480px) {
+      .issue-select { font-size: 12px; padding: 7px 30px 7px 10px; }
+      .repo-card { padding: 14px; }
+    }
+  </style>
+  <script>
+    // 尽早设置主题，避免页面闪烁
+    (function () {
+      var t = localStorage.getItem("gt-theme");
+      if (t !== "light" && t !== "dark") {
+        t = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+      }
+      document.documentElement.setAttribute("data-theme", t);
+    })();
+  </script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <div class="header-inner">
+        <div class="site-brand">
+          <div class="brand-logo">GH</div>
+          <div class="brand-text">
+            <div class="brand-title">GitHub Trending</div>
+            <div class="brand-sub">热门开源项目 · 按分类展示 · 每三天更新</div>
+          </div>
+        </div>
+        <div class="issue-nav">
+          <button class="theme-toggle" id="theme-toggle" aria-label="切换主题" title="切换亮色/暗色">
+            <svg class="icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            <svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+          </button>
+          <select id="issue-select" class="issue-select" aria-label="选择期数"></select>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="hero">
+      <div class="hero-left">
+        <h1 id="hero-title">加载中...</h1>
+        <div class="hero-meta" id="hero-meta"><span>正在加载数据...</span></div>
+      </div>
+      <div class="hero-badge" id="hero-badge">-</div>
+    </section>
+
+    <nav class="category-nav" id="category-nav" aria-label="分类导航"></nav>
+
+    <div id="repos-container">
+      <div class="loading">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">正在加载仓库数据...</div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-inner">
+        <span class="footer-text">GitHub Trending · 数据来源 GitHub API · 每三天自动更新</span>
+        <a class="footer-link" href="https://github.com/trending" target="_blank" rel="noopener">GitHub Trending &rarr;</a>
+      </div>
+    </div>
+  </footer>
+
+  <button class="scroll-top" id="scroll-top" aria-label="回到顶部">
+    <svg width="18" height="18" viewBox="0 0 16 16" fill="currentColor"><path fill-rule="evenodd" d="M3.47 7.78a.75.75 0 010-1.06l4.25-4.25a.75.75 0 011.06 0l4.25 4.25a.75.75 0 01-1.06 1.06L9 4.81v7.44a.75.75 0 01-1.5 0V4.81L4.53 7.78a.75.75 0 01-1.06 0z"/></svg>
+  </button>
+
+  <script>
+    (function () {
+      "use strict";
+
+      // ===== 配置 =====
+      // 使用相对路径，兼容 GitHub Pages 子路径部署 (user.github.io/repo/)
+      var DATA_DIR = "data/";
+
+      // ===== 语言颜色映射 =====
+      var LANG_COLORS = {
+        "JavaScript": "#f1e05a", "TypeScript": "#3178c6", "Python": "#3572A5",
+        "Java": "#b07219", "Go": "#00ADD8", "Rust": "#dea584",
+        "C++": "#f34b7d", "C": "#555555", "C#": "#178600",
+        "Ruby": "#701516", "PHP": "#4F5D95", "Swift": "#F05138",
+        "Kotlin": "#A97BFF", "Dart": "#00B4AB", "Shell": "#89e051",
+        "HTML": "#e34c26", "CSS": "#563d7c", "Vue": "#41b883",
+        "SCSS": "#c6538c", "Jupyter Notebook": "#DA5B0B",
+        "Dockerfile": "#384d54", "Makefile": "#427819", "Lua": "#000080",
+        "Elixir": "#6e4a7e", "Zig": "#ec915c", "Haskell": "#5e5086",
+        "Scala": "#c22d40", "Clojure": "#db5855", "Perl": "#0298c3",
+        "R": "#198CE7", "OCaml": "#3be133", "Erlang": "#B83998",
+        "Fortran": "#4d41b1", "Objective-C": "#438eff", "Assembly": "#6E4C13",
+        "PowerShell": "#012456", "Astro": "#ff5a03", "Svelte": "#ff3e00"
+      };
+
+      // ===== 状态 =====
+      var issuesIndex = null;   // issues.json 的内容
+      var currentIssue = null;  // 当前选中的期数 id
+      var currentCategory = "all";
+
+      // ===== 工具函数 =====
+      function getLangColor(lang) {
+        return LANG_COLORS[lang] || "#8b5cf6";
+      }
+      function formatStars(n) {
+        if (n >= 10000) return Math.floor(n / 1000) + "k";
+        if (n >= 1000) return (n / 1000).toFixed(1) + "k";
+        return String(n);
+      }
+      function formatDate(s) {
+        var d = new Date(s);
+        return d.getFullYear() + "." +
+          String(d.getMonth() + 1).padStart(2, "0") + "." +
+          String(d.getDate()).padStart(2, "0");
+      }
+      function escapeHtml(s) {
+        if (!s) return "";
+        var d = document.createElement("div");
+        d.textContent = s;
+        return d.innerHTML;
+      }
+
+      // SVG 图标
+      var STAR_SVG = '<svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor"><path d="M8 .25a.75.75 0 01.673.418l1.882 3.815 4.21.612a.75.75 0 01.416 1.279l-3.046 2.97.719 4.192a.75.75 0 01-1.088.791L8 12.347l-3.766 1.98a.75.75 0 01-1.088-.79l.72-4.194L.818 6.374a.75.75 0 01.416-1.28l4.21-.611L7.327.668A.75.75 0 018 .25z"/></svg>';
+      var FORK_SVG = '<svg width="13" height="13" viewBox="0 0 16 16" fill="currentColor"><path d="M5 5.372v.878c0 .414.336.75.75.75h4.5a.75.75 0 00.75-.75v-.878a2.25 2.25 0 111.5 0v.878a2.25 2.25 0 01-2.25 2.25h-1.5v2.128a2.251 2.251 0 11-1.5 0V8.5h-1.5A2.25 2.25 0 013.5 6.25v-.878a2.25 2.25 0 111.5 0zM5 3.25a.75.75 0 10-1.5 0 .75.75 0 001.5 0zm6.75.75a.75.75 0 100-1.5.75.75 0 000 1.5zm-3 8.75a.75.75 0 10-1.5 0 .75.75 0 001.5 0z"/></svg>';
+
+      // ===== fetch 封装（带缓存破坏，防止浏览器缓存旧 JSON）=====
+      function fetchJSON(url) {
+        var bust = url.indexOf("?") >= 0 ? "&" : "?";
+        bust += "_t=" + Date.now();
+        return fetch(url + bust, { cache: "no-cache" }).then(function (res) {
+          if (!res.ok) throw new Error("HTTP " + res.status);
+          return res.json();
+        });
+      }
+
+      // ===== 渲染：期数选择器 =====
+      function renderIssueSelect() {
+        var sel = document.getElementById("issue-select");
+        var html = "";
+        for (var i = 0; i < issuesIndex.issues.length; i++) {
+          var is = issuesIndex.issues[i];
+          html += '<option value="' + is.id + '"' + (is.id === currentIssue ? " selected" : "") + ">" +
+            "第" + is.id + "期 (" + formatDate(is.start_date) + " - " + formatDate(is.end_date) + ")</option>";
+        }
+        sel.innerHTML = html;
+      }
+
+      // ===== 渲染：Hero 区域 =====
+      function renderHero(issueData) {
+        document.getElementById("hero-title").textContent = "第" + issueData.id + "期";
+        var total = 0;
+        for (var i = 0; i < issueData.categories.length; i++) {
+          total += issueData.categories[i].repos.length;
+        }
+        document.getElementById("hero-meta").innerHTML =
+          "<span>" + formatDate(issueData.start_date) + " - " + formatDate(issueData.end_date) + "</span>" +
+          '<span class="dot"></span>' +
+          "<span>共 " + total + " 个项目</span>";
+        document.getElementById("hero-badge").textContent = issueData.categories.length + " 个分类";
+      }
+
+      // ===== 渲染：分类导航 =====
+      function renderCategoryNav(issueData) {
+        var nav = document.getElementById("category-nav");
+        var html = '<button class="cat-pill' + (currentCategory === "all" ? " active" : "") + '" data-cat="all">全部</button>';
+        for (var i = 0; i < issueData.categories.length; i++) {
+          var c = issueData.categories[i];
+          html += '<button class="cat-pill' + (currentCategory === c.id ? " active" : "") + '" data-cat="' + escapeHtml(c.id) + '">' +
+            c.icon + " " + escapeHtml(c.name) +
+            '<span class="cat-count">' + c.repos.length + "</span></button>";
+        }
+        nav.innerHTML = html;
+
+        var pills = nav.querySelectorAll(".cat-pill");
+        for (var j = 0; j < pills.length; j++) {
+          (function (pill) {
+            pill.addEventListener("click", function () {
+              currentCategory = pill.getAttribute("data-cat");
+              renderCategoryNav(issueData);
+              renderRepos(issueData);
+              var hero = document.querySelector(".hero");
+              if (hero) window.scrollTo({ top: hero.offsetTop - 80, behavior: "smooth" });
+            });
+          })(pills[j]);
+        }
+      }
+
+      // ===== 渲染：单个仓库卡片 =====
+      function renderRepoCard(repo, index, accentColor) {
+        var topicsHtml = "";
+        if (repo.topics && repo.topics.length > 0) {
+          var max = Math.min(repo.topics.length, 4);
+          for (var j = 0; j < max; j++) {
+            topicsHtml += '<span class="repo-topic">' + escapeHtml(repo.topics[j]) + "</span>";
+          }
+        }
+        var delay = (index % 10) * 0.04;
+        var avatarUrl = repo.owner_avatar || "";
+        var ownerHtml = escapeHtml(repo.owner || "");
+        var nameHtml = escapeHtml(repo.name || "");
+        var descHtml = escapeHtml(repo.description || "暂无描述");
+        var langHtml = escapeHtml(repo.language || "N/A");
+        var langColor = getLangColor(repo.language);
+
+        return '<a class="repo-card" href="' + escapeHtml(repo.html_url) + '" target="_blank" rel="noopener noreferrer" style="animation-delay:' + delay + "s;--card-accent:" + (accentColor || "#6366f1") + '">' +
+          '<div class="repo-card-head">' +
+            (avatarUrl ? '<img class="repo-avatar" src="' + escapeHtml(avatarUrl) + '" alt="' + ownerHtml + '" loading="lazy">' : '<div class="repo-avatar"></div>') +
+            '<div class="repo-info"><div class="repo-owner">' + ownerHtml + "</div>" +
+            '<div class="repo-name">' + nameHtml + "</div></div>" +
+          "</div>" +
+          '<p class="repo-desc">' + descHtml + "</p>" +
+          (topicsHtml ? '<div class="repo-topics">' + topicsHtml + "</div>" : "") +
+          '<div class="repo-card-foot">' +
+            '<span class="repo-foot-item"><span class="lang-dot" style="background:' + langColor + '"></span>' + langHtml + "</span>" +
+            '<span class="repo-foot-item star-icon">' + STAR_SVG + formatStars(repo.stargazers_count) + "</span>" +
+            '<span class="repo-foot-item">' + FORK_SVG + formatStars(repo.forks_count) + "</span>" +
+          "</div>" +
+        "</a>";
+      }
+
+      // ===== 渲染：仓库列表 =====
+      function renderRepos(issueData) {
+        var container = document.getElementById("repos-container");
+        var cats = issueData.categories;
+        if (currentCategory !== "all") {
+          cats = cats.filter(function (c) { return c.id === currentCategory; });
+        }
+        if (cats.length === 0) {
+          container.innerHTML = '<div class="loading"><div class="loading-text">暂无数据</div></div>';
+          return;
+        }
+        var html = "";
+        for (var i = 0; i < cats.length; i++) {
+          var c = cats[i];
+          html += '<section class="category-section">' +
+            '<div class="cat-section-header">' +
+              '<span class="cat-icon">' + c.icon + "</span>" +
+              '<h2 class="cat-title">' + escapeHtml(c.name) + "</h2>" +
+              '<span class="cat-badge">' + c.repos.length + " 个项目</span>" +
+            "</div>" +
+            '<div class="repos-grid">';
+          for (var j = 0; j < c.repos.length; j++) {
+            html += renderRepoCard(c.repos[j], j, c.color);
+          }
+          html += "</div></section>";
+        }
+        container.innerHTML = html;
+      }
+
+      // ===== 加载某一期数据 =====
+      function loadIssue(issueId) {
+        currentIssue = issueId;
+        currentCategory = "all";
+        var container = document.getElementById("repos-container");
+        container.innerHTML = '<div class="loading"><div class="loading-spinner"></div><div class="loading-text">正在加载第 ' + issueId + " 期数据...</div></div>";
+
+        fetchJSON(DATA_DIR + "issue-" + issueId + ".json")
+          .then(function (issueData) {
+            renderIssueSelect();
+            renderHero(issueData);
+            renderCategoryNav(issueData);
+            renderRepos(issueData);
+            window.scrollTo({ top: 0, behavior: "smooth" });
+          })
+          .catch(function (err) {
+            container.innerHTML = '<div class="error-box"><h3>数据加载失败</h3><p>' + escapeHtml(err.message) + "</p><p>请确认 data/issue-" + issueId + ".json 文件存在</p></div>";
+            console.error("Failed to load issue:", err);
+          });
+      }
+
+      // ===== 初始化 =====
+      document.addEventListener("DOMContentLoaded", function () {
+        var sel = document.getElementById("issue-select");
+        sel.addEventListener("change", function () {
+          loadIssue(parseInt(this.value, 10));
+        });
+
+        // 主题切换
+        var themeBtn = document.getElementById("theme-toggle");
+        themeBtn.addEventListener("click", function () {
+          var current = document.documentElement.getAttribute("data-theme") || "light";
+          var next = current === "dark" ? "light" : "dark";
+          document.documentElement.setAttribute("data-theme", next);
+          localStorage.setItem("gt-theme", next);
+        });
+
+        var btn = document.getElementById("scroll-top");
+        window.addEventListener("scroll", function () {
+          if (window.scrollY > 400) btn.classList.add("visible");
+          else btn.classList.remove("visible");
+        });
+        btn.addEventListener("click", function () {
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        });
+
+        // 加载期数索引
+        fetchJSON(DATA_DIR + "issues.json")
+          .then(function (data) {
+            issuesIndex = data;
+            var latest = data.latestIssue || (data.issues.length > 0 ? data.issues[0].id : 1);
+            loadIssue(latest);
+          })
+          .catch(function (err) {
+            var container = document.getElementById("repos-container");
+            container.innerHTML = '<div class="error-box"><h3>无法加载期数索引</h3><p>' + escapeHtml(err.message) + "</p><p>请确认 data/issues.json 文件存在且可访问</p></div>";
+            console.error("Failed to load issues index:", err);
+          });
+      });
+    })();
+  </script>
+</body>
+</html>

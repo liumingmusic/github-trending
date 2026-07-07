@@ -1,0 +1,13 @@
+{
+  "issues": [
+    {
+      "id": 1,
+      "title": "第1期",
+      "start_date": "2026-07-07",
+      "end_date": "2026-07-09",
+      "generated_at": "2026-07-07T20:51:32.714693",
+      "total_repos": 211
+    }
+  ],
+  "latestIssue": 1
+}
