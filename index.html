@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="description" content="GitHub 热门开源项目，按分类排版展示，每三天更新一期">
   <meta name="theme-color" content="#6366f1">
   <title>GitHub Trending · 热门开源项目</title>
@@ -53,6 +53,8 @@
       font-size: 15px;
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
+      touch-action: manipulation;
+      overscroll-behavior-y: contain;
     }
     a { color: inherit; text-decoration: none; }
     img { display: block; max-width: 100%; }
@@ -132,14 +134,27 @@
       border-radius: 20px; font-size: 12px; font-weight: 600; white-space: nowrap;
     }
 
-    /* ===== 分类导航 ===== */
+    /* ===== 分类导航（吸顶） ===== */
+    .category-nav-wrap {
+      position: sticky;
+      top: 64px;
+      z-index: 90;
+      background: rgba(248, 250, 252, 0.92);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 10px 0 12px;
+    }
+    [data-theme="dark"] .category-nav-wrap { background: rgba(15, 23, 42, 0.92); }
     .category-nav {
       display: flex; gap: 8px; overflow-x: auto;
-      padding: 4px 0 20px; -webkit-overflow-scrolling: touch;
+      -webkit-overflow-scrolling: touch;
       scrollbar-width: thin;
+      padding-bottom: 2px;
     }
-    .category-nav::-webkit-scrollbar { height: 4px; }
+    .category-nav::-webkit-scrollbar { height: 3px; }
     .category-nav::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+    .category-nav::-webkit-scrollbar-track { background: transparent; }
     .cat-pill {
       display: inline-flex; align-items: center; gap: 6px;
       padding: 8px 16px; border: 1px solid var(--border); border-radius: 20px;
@@ -271,17 +286,32 @@
     /* ===== 响应式 ===== */
     @media (max-width: 768px) {
       .container { padding: 0 16px; }
-      .header-inner { height: 56px; }
+      .header-inner { height: 56px; gap: 10px; }
       .brand-sub { display: none; }
-      .hero { padding: 28px 0 20px; flex-direction: column; align-items: flex-start; }
+      .brand-logo { width: 34px; height: 34px; font-size: 14px; border-radius: 10px; }
+      .brand-title { font-size: 15px; }
+      .hero { padding: 24px 0 16px; flex-direction: column; align-items: flex-start; gap: 12px; }
       .hero-left h1 { font-size: 22px; }
-      .repos-grid { grid-template-columns: 1fr; }
-      .cat-pill { padding: 6px 12px; font-size: 12px; }
-      .scroll-top { bottom: 16px; right: 16px; }
-    }
-    @media (max-width: 480px) {
+      .hero-badge { font-size: 11px; padding: 5px 12px; }
+      .category-nav-wrap { top: 56px; padding: 8px 0 10px; }
+      .cat-pill { padding: 7px 14px; font-size: 12px; }
+      .cat-count { font-size: 10px; }
+      .repos-grid { grid-template-columns: 1fr; gap: 12px; }
+      .repo-card { padding: 14px; gap: 10px; }
+      .repo-card-head { gap: 10px; }
+    .repo-avatar { width: 38px; height: 38px; border-radius: 9px; }
+      .repo-name { font-size: 14px; }
+      .repo-desc { font-size: 12px; min-height: 36px; }
+      .repo-card-foot { gap: 12px; font-size: 11px; }
+      .cat-section-header { margin-bottom: 12px; }
+      .cat-title { font-size: 16px; }
+      .cat-icon { font-size: 20px; }
+      .category-section { margin-bottom: 32px; }
+      .scroll-top { bottom: 16px; right: 16px; width: 38px; height: 38px; border-radius: 10px; }
       .issue-select { font-size: 12px; padding: 7px 30px 7px 10px; }
-      .repo-card { padding: 14px; }
+      .theme-toggle { width: 34px; height: 34px; }
+      .site-footer { padding: 20px 0; }
+      .footer-text { font-size: 11px; }
     }
   </style>
   <script>
@@ -317,21 +347,29 @@
     </div>
   </header>
 
-  <main class="container">
-    <section class="hero">
-      <div class="hero-left">
-        <h1 id="hero-title">加载中...</h1>
-        <div class="hero-meta" id="hero-meta"><span>正在加载数据...</span></div>
+  <main>
+    <div class="container">
+      <section class="hero">
+        <div class="hero-left">
+          <h1 id="hero-title">加载中...</h1>
+          <div class="hero-meta" id="hero-meta"><span>正在加载数据...</span></div>
+        </div>
+        <div class="hero-badge" id="hero-badge">-</div>
+      </section>
+    </div>
+
+    <div class="category-nav-wrap">
+      <div class="container">
+        <nav class="category-nav" id="category-nav" aria-label="分类导航"></nav>
       </div>
-      <div class="hero-badge" id="hero-badge">-</div>
-    </section>
+    </div>
 
-    <nav class="category-nav" id="category-nav" aria-label="分类导航"></nav>
-
-    <div id="repos-container">
-      <div class="loading">
-        <div class="loading-spinner"></div>
-        <div class="loading-text">正在加载仓库数据...</div>
+    <div class="container">
+      <div id="repos-container">
+        <div class="loading">
+          <div class="loading-spinner"></div>
+          <div class="loading-text">正在加载仓库数据...</div>
+        </div>
       </div>
     </div>
   </main>
@@ -453,6 +491,19 @@
         }
         nav.innerHTML = html;
 
+        // 自动将激活的分类滚动到可视区域
+        var activePill = nav.querySelector(".cat-pill.active");
+        if (activePill) {
+          var navRect = nav.getBoundingClientRect();
+          var pillRect = activePill.getBoundingClientRect();
+          if (pillRect.left < navRect.left || pillRect.right > navRect.right) {
+            nav.scrollTo({
+              left: activePill.offsetLeft - nav.offsetWidth / 2 + activePill.offsetWidth / 2,
+              behavior: "smooth"
+            });
+          }
+        }
+
         var pills = nav.querySelectorAll(".cat-pill");
         for (var j = 0; j < pills.length; j++) {
           (function (pill) {
@@ -460,8 +511,18 @@
               currentCategory = pill.getAttribute("data-cat");
               renderCategoryNav(issueData);
               renderRepos(issueData);
-              var hero = document.querySelector(".hero");
-              if (hero) window.scrollTo({ top: hero.offsetTop - 80, behavior: "smooth" });
+              // 滚动到内容区顶部（吸顶导航下方）
+              var repos = document.getElementById("repos-container");
+              var navWrap = document.querySelector(".category-nav-wrap");
+              if (repos && navWrap) {
+                var reposTop = repos.getBoundingClientRect().top + window.scrollY;
+                var headerH = window.matchMedia("(max-width: 768px)").matches ? 56 : 64;
+                var navH = navWrap.offsetHeight;
+                var target = reposTop - headerH - navH - 4;
+                if (window.scrollY > target) {
+                  window.scrollTo({ top: target, behavior: "smooth" });
+                }
+              }
             });
           })(pills[j]);
         }
@@ -574,6 +635,10 @@
         btn.addEventListener("click", function () {
           window.scrollTo({ top: 0, behavior: "smooth" });
         });
+
+        // 禁止 iOS Safari 双指缩放
+        document.addEventListener("gesturestart", function (e) { e.preventDefault(); });
+        document.addEventListener("gesturechange", function (e) { e.preventDefault(); });
 
         // 加载期数索引
         fetchJSON(DATA_DIR + "issues.json")
