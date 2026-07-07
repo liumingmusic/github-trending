@@ -91,6 +91,62 @@ CATEGORIES = [
         "color": "#00ADD8",
         "query": "topic:devops stars:>500",
     },
+    {
+        "id": "data-science",
+        "name": "数据科学",
+        "icon": "📊",
+        "color": "#4CAF50",
+        "query": "topic:data-science stars:>800",
+    },
+    {
+        "id": "blockchain",
+        "name": "区块链",
+        "icon": "⛓️",
+        "color": "#F7931A",
+        "query": "topic:blockchain stars:>500",
+    },
+    {
+        "id": "cli",
+        "name": "命令行工具",
+        "icon": "⌨️",
+        "color": "#4EAA25",
+        "query": "topic:cli stars:>400",
+    },
+    {
+        "id": "ui-components",
+        "name": "UI 组件库",
+        "icon": "🧩",
+        "color": "#06B6D4",
+        "query": "topic:ui-components stars:>300",
+    },
+    {
+        "id": "iot",
+        "name": "物联网",
+        "icon": "🔌",
+        "color": "#009688",
+        "query": "topic:iot stars:>300",
+    },
+    {
+        "id": "data-viz",
+        "name": "数据可视化",
+        "icon": "📈",
+        "color": "#FF9800",
+        "query": "topic:data-visualization stars:>400",
+    },
+    {
+        "id": "llm",
+        "name": "大模型",
+        "icon": "🧠",
+        "color": "#7C3AED",
+        "query": "topic:llm stars:>800",
+    },
+    {
+        "id": "agent",
+        "name": "AI Agent",
+        "icon": "🤖",
+        "color": "#EC4899",
+        "query": "topic:ai-agents stars:>200",
+    },
 ]
 
 # ==================== 路径配置 ====================
