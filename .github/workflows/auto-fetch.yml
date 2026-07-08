@@ -1,0 +1,48 @@
+name: Auto Fetch GitHub Trending
+
+# 云端定时抓取 GitHub 热门仓库并推送数据到仓库
+# 替代本地脚本运行：完全在 GitHub 服务器执行，无需本地环境
+
+on:
+  schedule:
+    # 每 3 天 UTC 0 点运行（GitHub Actions 使用 UTC 时间）
+    - cron: "0 0 */3 * *"
+  # 允许在 GitHub 网页 Actions 标签页手动点击 "Run workflow" 触发（方便测试）
+  workflow_dispatch:
+
+# 赋予工作流推送回仓库的权限（默认 token 只有读权限）
+permissions:
+  contents: write
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout 仓库
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 配置 Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: 运行抓取脚本
+        # GITHUB_TOKEN 既用于认证 GitHub API（提升速率限制），也用于后续 push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: python main.py --env-token
+
+      - name: 提交并推送数据
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if git diff --cached --quiet; then
+            echo "数据无变化，跳过提交"
+          else
+            git commit -m "chore: 自动抓取更新 $(date +'%Y-%m-%d %H:%M UTC')"
+            git push
+          fi
