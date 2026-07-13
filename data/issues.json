@@ -23,7 +23,15 @@
       "end_date": "2026-07-12",
       "generated_at": "2026-07-10T01:23:44.856156",
       "total_repos": 407
+    },
+    {
+      "id": 4,
+      "title": "第4期",
+      "start_date": "2026-07-13",
+      "end_date": "2026-07-15",
+      "generated_at": "2026-07-13T01:20:23.113175",
+      "total_repos": 380
     }
   ],
-  "latestIssue": 3
+  "latestIssue": 4
 }
