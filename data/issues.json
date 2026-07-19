@@ -39,7 +39,15 @@
       "end_date": "2026-07-18",
       "generated_at": "2026-07-16T01:16:00.620296",
       "total_repos": 425
+    },
+    {
+      "id": 6,
+      "title": "第6期",
+      "start_date": "2026-07-19",
+      "end_date": "2026-07-21",
+      "generated_at": "2026-07-19T01:16:43.336585",
+      "total_repos": 424
     }
   ],
-  "latestIssue": 5
+  "latestIssue": 6
 }
