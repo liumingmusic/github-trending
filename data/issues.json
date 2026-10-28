@@ -319,7 +319,15 @@
       "end_date": "2026-10-27",
       "generated_at": "2026-10-25T01:53:49.193727",
       "total_repos": 342
+    },
+    {
+      "id": 41,
+      "title": "第41期",
+      "start_date": "2026-10-28",
+      "end_date": "2026-10-30",
+      "generated_at": "2026-10-28T02:42:35.582108",
+      "total_repos": 378
     }
   ],
-  "latestIssue": 40
+  "latestIssue": 41
 }
