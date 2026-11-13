@@ -367,7 +367,15 @@
       "end_date": "2026-11-12",
       "generated_at": "2026-11-10T04:53:07.146334",
       "total_repos": 410
+    },
+    {
+      "id": 47,
+      "title": "第47期",
+      "start_date": "2026-11-13",
+      "end_date": "2026-11-15",
+      "generated_at": "2026-11-13T03:44:58.595401",
+      "total_repos": 420
     }
   ],
-  "latestIssue": 46
+  "latestIssue": 47
 }
